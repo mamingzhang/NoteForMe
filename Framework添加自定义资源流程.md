@@ -290,4 +290,10 @@
     mOrderedPackages.add(package);  
     ```
 
-	
+
+
+
+
+##参考资料  
+1. https://lynn8570.github.io/posts/customer%20framework%20resource/
+2. http://blog.163.com/zhou_411424/blog/static/1973621562014516010745
