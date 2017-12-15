@@ -18,18 +18,57 @@
 3. 在自定义源码目录下添加CustomService.java，实现ICustomService.aidl
 
 	```  
+	public class CustomService extends ICustomService.Stub {
+
+    private static final String TAG = CustomService.class.getSimpleName();
+
+    public static final String SERVICE_NAME = "custom_service";
+
+    public void customService() {
+        Log.v(TAG, "customService called");
+    }
+}
 	```
 4. 在自定义源码目录下添加CustomServiceManager.java
 
 	```  
+	public class CustomServiceManager {
+
+    private Context context;
+    private ICustomService customService;
+
+    public static ICustomService getCustomService() {
+        IBinder binder = ServiceManager.getService(CustomService.SERVICE_NAME);
+        return ICustomService.Stub.asInterface(binder);
+    }
+
+    public CustomServiceManager(Context context, ICustomService customService) {
+        this.context = context;
+        this.customService = customService;
+    }
+
+    public void customService() {
+        if (customService != null) {
+            try {
+                customService.customService();
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+}
 	```  
 	
 5. 在frameworks/base/services/java/com/android/server/SystemServer.java中添加自定义服务
 
-	```  
-	```  
+	``` 
+	try {
+    Slog.i(TAG, "Custom Service");    ServiceManager.addService(CustomService.SERVICE_NAME, new CustomService());} catch (Throwable e) {    reportWtf("starting Custom Service", e);}
+	```  
 	
 6. 在frameworks/base/core/java/android/app/ContextImpl.java中注册服务
 
 	```  
+	registerService(CustomService.SERVICE_NAME, new ServiceFetcher() {
+    @Override    public Object createService(ContextImpl ctx) {        return new CustomServiceManager(ctx, CustomServiceManager.getCustomService());    }});
 	```
